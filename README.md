@@ -1,6 +1,8 @@
 To reproduce the bug:
 
-- Sync postgres instance with schema
-- npm i
-- npm run generate
-- npm run start
+- yarn
+- psql -U user -h 127.0.0.1 -d db -f seed.sql
+- npx prisma generate
+- npx ts-node --transpile-only ./testQuery.ts
+
+Observe logged queries.
