@@ -1,20 +1,36 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient({
-  log: ["query", "info", "warn"],
+  log: [
+    {
+      level: "info",
+      emit: "stdout",
+    },
+    {
+      level: "query",
+      emit: "stdout",
+    },
+    {
+      level: "warn",
+      emit: "stdout",
+    },
+  ],
 });
 
-async function tryIt() {
-  const result = await prisma.bookmark.findOne({
-    where: {
-      bookmark_page_id_reader_id_key: {
-        pageId: "bb60cc30-c892-4b7e-820c-db91382e82ea",
-        readerId: "55a56470-d026-4c42-a24b-30b692b747e2",
-      },
-    },
-  });
+function getPaginationArgs(cursor: string | undefined) {
+  return {
+    take: 10,
+    cursor: cursor ? { id: cursor } : undefined,
+    skip: cursor ? 1 : undefined,
+    orderBy: { createdAt: "desc" },
+  } as const;
+}
 
-  console.log(result);
+async function tryIt() {
+  const page1 = await prisma.page.findMany(getPaginationArgs(undefined));
+  const cursor = page1[page1.length - 1].id;
+  const page2 = await prisma.page.findMany(getPaginationArgs(cursor));
+  prisma.$disconnect();
 }
 
 tryIt();
