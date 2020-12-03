@@ -8,29 +8,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Bookmark {
-  id       String  @default(dbgenerated()) @id
-  pageId   String  @map("page_id")
-  readerId String? @map("reader_id")
-  page     Page    @relation(fields: [pageId], references: [id])
-  reader   Reader? @relation(fields: [readerId], references: [id])
-
-  @@index([pageId], name: "bookmark_page_id_fkey")
-  @@index([readerId], name: "bookmark_reader_id_fkey")
-  @@map("bookmark")
-  @@unique([pageId, readerId], name: "bookmark_page_id_reader_id_key")
-}
-
 model Page {
-  id        String     @default(dbgenerated()) @id
-  bookmarks Bookmark[]
+  id              String     @id @default(dbgenerated())
+  createdAt       DateTime   @default(now()) @map("created_at")
+  url             String     @unique
 
   @@map("page")
 }
 
-model Reader {
-  id        String     @default(dbgenerated()) @id
-  bookmarks Bookmark[]
-
-  @@map("reader")
-}
